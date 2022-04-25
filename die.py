@@ -6,6 +6,5 @@ class Die:
         self.saved = saved
 
     def roll_dice(self):
-        if self.saved == False:
-            self.number = random.randint(1, 6)
-
+        self.number = random.randint(1, 6)
+        return self.number
