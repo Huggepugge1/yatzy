@@ -2,15 +2,12 @@ from die import Die
 from player import Player
 from bot import *
 
-difficulty = 2
-
-def print_highscore_list():
-    
+difficulty = 3
 
 def add_dice():
     dice = []
     for i in range(5):
-        dice.append(Die(0, False))
+        dice.append(Die())
     return dice
 
 def add_players():
@@ -31,7 +28,7 @@ def add_players():
     for _ in range(num_of_players):
         players.append(Player(name=input("What is your name? "), bot=False))
 
-    num_of_bots = 1000
+    num_of_bots = 10000
     while 0 > num_of_bots:
         try:
             num_of_bots = int(input("How many bots will play the game? "))
@@ -112,7 +109,7 @@ def main():
                 for i in range(3):
                     roll = roll_die(dice)
                     if i != 2:
-                        bot_save(dice, roll, difficulty)
+                        bot_save(dice, roll, difficulty, i)
                 bot_validate_throw(player, roll, difficulty)
 
             for die in dice:

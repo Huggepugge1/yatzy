@@ -1,4 +1,7 @@
+from player import Player
+from die import Die
 from random import *
+import itertools
 
 options = []
 
@@ -24,12 +27,65 @@ def save(dice, roll, saved):
     while len(saved) > 0:
         die = int(saved[0])
         for i in range(len(dice)):
-            if dice[i].number == die and dice[i].saved == False:
+            if dice[i].number == die and not dice[i].saved:
                 dice[i].saved = True
                 break
             saved = saved[1:]
 
-def bot_save(dice, roll, difficulty):
+permutations = []
+for i in range(1, 7):
+    for j in range(1, 7):
+        for k in range(1, 7):
+            for l in range(1, 7):
+                for m in range(1, 7):
+                    perm = [i, j, k, l, m]
+                    perm.sort()
+                    if perm not in permutations:
+                        permutations.append(perm)
+
+print(len(permutations))
+
+optimal = [{}, {}, {}]
+for perm in permutations:
+    player = Player("yes", True)
+    optimal[2][str(perm)] = []
+    for option in alternatives:
+        val = player.validate(perm, option)
+        if val > 0 and option != "chance":
+            optimal[2][str(perm)].append([val, option])
+    optimal[2][str(perm)] = sorted(optimal[2][str(perm)], reverse=True)
+    optimal[2][str(perm)].append([sum(perm), "chance"])
+
+for perm in permutations:
+    best = []
+    dice = [Die() for i in range(5)]
+    for i in range(6):
+        for s in itertools.combinations(perm, i):
+            yes = []
+            save(dice, perm, list(s))
+            for die in dice:
+                die.roll_dice()
+                yes.append(die.number)
+            best.append([optimal[2][str(list(sorted(yes)))], s])
+    best.sort(key=lambda x: x[0][0])
+    optimal[1][str(perm)] = best[0]
+
+for perm in permutations:
+    best = []
+    dice = [Die() for i in range(5)]
+    for i in range(6):
+        for s in itertools.combinations(perm, i):
+            yes = []
+            save(dice, perm, list(s))
+            for die in dice:
+                die.roll_dice()
+                yes.append(die.number)
+            best.append([optimal[1][str(list(sorted(yes)))], s])
+    best.sort(key=lambda x: x[0][0])
+    optimal[0][str(perm)] = best[0]
+
+
+def bot_save(dice, roll, difficulty, roll_number):
     if difficulty == 0:
         saved = sample(roll, randint(0, 5))
         save(dice, roll, saved)
@@ -45,6 +101,9 @@ def bot_save(dice, roll, difficulty):
                 m = i
         saved = [m for i in range(roll.count(m))]
         save(dice, roll, saved)
+
+    elif difficulty == 3:
+        save(dice, roll, optimal[roll_number][str(list(sorted(roll)))][1])
 
 def bot_validate_throw(player, roll, difficulty):
     if difficulty == 0:
@@ -66,7 +125,7 @@ def bot_validate_throw(player, roll, difficulty):
             else:
                 correct = player.throw(roll, option)
 
-    if difficulty == 1:
+    elif difficulty == 1:
         for option in alternatives:
             correct = player.throw(roll, option)
             if correct == 0:
@@ -76,7 +135,7 @@ def bot_validate_throw(player, roll, difficulty):
             if correct == 0:
                 return
 
-    if difficulty == 2:
+    elif difficulty == 2:
         best = []
         for option in alternatives:
             correct = player.validate(roll, option)
@@ -93,3 +152,16 @@ def bot_validate_throw(player, roll, difficulty):
             correct = player.erase(roll, "erase " + option)
             if correct == 0:
                 return
+
+    elif difficulty == 3:
+        roll.sort()
+        for option in optimal[2][str(roll)]:
+            if player.validate(roll, option[1]) > 0:
+                player.throw(roll, option[1])
+                return
+        for option in alternatives:
+            correct = player.erase(roll, "erase " + option)
+            if correct == 0:
+                return
+    else:
+        assert False, "unreachable"
