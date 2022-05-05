@@ -3,8 +3,6 @@ from die import Die
 from random import *
 import itertools
 
-options = []
-
 alternatives = [
     "ones",
     "twos",
@@ -23,6 +21,30 @@ alternatives = [
     "yatzy"
 ]
 
+permutations = {}
+for i in range(1, 7):
+    for j in range(1, 7):
+        for k in range(1, 7):
+            for l in range(1, 7):
+                for m in range(1, 7):
+                    perm = [i, j, k, l, m]
+                    perm.sort()
+                    strperm = "".join(str(num) for num in perm)
+                    if strperm in permutations:
+                        permutations[strperm] += 1
+                    else:
+                        permutations[strperm] = 1
+
+optimal = {}
+for perm in permutations:
+    player = Player("test", True)
+    optimal[perm] = []
+    for option in alternatives:
+        if option != "chance":
+            optimal[perm].append([player.validate([int(num) for num in perm], option), option])
+    optimal[perm].sort(key=lambda x: x[0], reverse=True)
+    optimal[perm].append([sum(int(num) for num in perm), "chance"])
+
 def save(dice, roll, saved):
     while len(saved) > 0:
         die = int(saved[0])
@@ -31,59 +53,6 @@ def save(dice, roll, saved):
                 dice[i].saved = True
                 break
             saved = saved[1:]
-
-permutations = []
-for i in range(1, 7):
-    for j in range(1, 7):
-        for k in range(1, 7):
-            for l in range(1, 7):
-                for m in range(1, 7):
-                    perm = [i, j, k, l, m]
-                    perm.sort()
-                    if perm not in permutations:
-                        permutations.append(perm)
-
-print(len(permutations))
-
-optimal = [{}, {}, {}]
-for perm in permutations:
-    player = Player("yes", True)
-    optimal[2][str(perm)] = []
-    for option in alternatives:
-        val = player.validate(perm, option)
-        if val > 0 and option != "chance":
-            optimal[2][str(perm)].append([val, option])
-    optimal[2][str(perm)] = sorted(optimal[2][str(perm)], reverse=True)
-    optimal[2][str(perm)].append([sum(perm), "chance"])
-
-for perm in permutations:
-    best = []
-    dice = [Die() for i in range(5)]
-    for i in range(6):
-        for s in itertools.combinations(perm, i):
-            yes = []
-            save(dice, perm, list(s))
-            for die in dice:
-                die.roll_dice()
-                yes.append(die.number)
-            best.append([optimal[2][str(list(sorted(yes)))], s])
-    best.sort(key=lambda x: x[0][0])
-    optimal[1][str(perm)] = best[0]
-
-for perm in permutations:
-    best = []
-    dice = [Die() for i in range(5)]
-    for i in range(6):
-        for s in itertools.combinations(perm, i):
-            yes = []
-            save(dice, perm, list(s))
-            for die in dice:
-                die.roll_dice()
-                yes.append(die.number)
-            best.append([optimal[1][str(list(sorted(yes)))], s])
-    best.sort(key=lambda x: x[0][0])
-    optimal[0][str(perm)] = best[0]
-
 
 def bot_save(dice, roll, difficulty, roll_number):
     if difficulty == 0:
@@ -96,14 +65,14 @@ def bot_save(dice, roll, difficulty, roll_number):
 
     elif difficulty == 2:
         m = 0
-        for i in roll:
-            if roll.count(i) >= m:
-                m = i
-        saved = [m for i in range(roll.count(m))]
+        for num in roll:
+            if roll.count(num) >= m:
+                m = num
+        saved = [m for num in range(roll.count(m))]
         save(dice, roll, saved)
 
     elif difficulty == 3:
-        save(dice, roll, optimal[roll_number][str(list(sorted(roll)))][1])
+        pass
 
 def bot_validate_throw(player, roll, difficulty):
     if difficulty == 0:
@@ -155,7 +124,8 @@ def bot_validate_throw(player, roll, difficulty):
 
     elif difficulty == 3:
         roll.sort()
-        for option in optimal[2][str(roll)]:
+        strroll = "".join(str(num) for num in roll)
+        for option in optimal[strroll]:
             if player.validate(roll, option[1]) > 0:
                 player.throw(roll, option[1])
                 return
