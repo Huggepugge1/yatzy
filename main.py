@@ -69,13 +69,11 @@ def save(dice, roll):
         pass
     while len(saved) > 0:
         die = int(saved[0])
-        dice = sorted([num for num in dice], lambda x: x.number)
+        dice = sorted([num for num in dice], key=lambda x: x.number)
         for i in range(len(dice)):
             if dice[i].number == die and not dice[i].saved:
                 dice[i].saved = True
                 break
-            else:
-                dice[i].saved = False
         saved = saved[1:]
 
 def roll_die(dice):
@@ -85,6 +83,7 @@ def roll_die(dice):
             roll.append(die.number)
         else:
             roll.append(die.roll_dice())
+        die.saved = False
 
     return roll
 
