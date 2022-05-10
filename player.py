@@ -1,3 +1,4 @@
+# All options available
 alternatives = [
     "ones",
     "twos",
@@ -17,6 +18,7 @@ alternatives = [
 ]
 
 class Player:
+    # Initializes Player object
     def __init__(self, name, bot):
         self.name = name
         self.bot = bot
@@ -63,17 +65,24 @@ class Player:
         print("Yatzy:", self.yatzy)
         print("Sum:", self.sum)
 
+    # If bonus, add 50 to sum
     def check_bonus(self):
         if self.bonus == 0 and self.mini_sum >= 63:
             self.bonus = 50
             self.sum += 50
 
+    # Check if option is valid
     def check_if_in_list(self, dice_throw):
         if dice_throw in alternatives:
             return True
         return False
 
+    # Validates throw
+    # Almost just if statements for every singe combination
+    # Returns positive value if ok, -1 if not in roll, -2 if option not valid, -3 if erased and -4 if already taken
     def validate(self, roll, dice_throw):
+        if not self.check_if_in_list(dice_throw):
+            return -2
         self.check_bonus()
         roll = divide(roll)
         if dice_throw == "ones":
@@ -239,8 +248,11 @@ class Player:
                 if len(value) == 5:
                     return 50
             return -1
-        return 0
+        # Something is wrong if executed
+        assert False, "unreachable"
 
+    # Erases to yatzy chart
+    # Almost just if statements for every singe combination
     def erase(self, roll, dice_throw):
         if not self.check_if_in_list(dice_throw):
             return -2
@@ -297,6 +309,8 @@ class Player:
 
         return 0
 
+    # Adds to yatzy chart
+    # Almost just if statements for every singe combination
     def throw(self, roll, dice_throw):
         if not self.check_if_in_list(dice_throw):
             return -2
@@ -379,7 +393,7 @@ class Player:
 
         return 0
 
-
+# Fast sorting algorithm
 def merge_sort(array):
     if len(array) > 1:
         s = len(array) // 2
@@ -410,6 +424,7 @@ def merge_sort(array):
             j += 1
             k += 1
 
+# Make 1d array into 2d array
 def divide(array):
     n = [[], [], [], [], [], []]
     for i in array:

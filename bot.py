@@ -2,7 +2,7 @@ from player import Player
 from die import Die
 from random import *
 import itertools
-
+# All options available
 alternatives = [
     "ones",
     "twos",
@@ -21,30 +21,7 @@ alternatives = [
     "yatzy"
 ]
 
-permutations = {}
-for i in range(1, 7):
-    for j in range(1, 7):
-        for k in range(1, 7):
-            for l in range(1, 7):
-                for m in range(1, 7):
-                    perm = [i, j, k, l, m]
-                    perm.sort()
-                    strperm = "".join(str(num) for num in perm)
-                    if strperm in permutations:
-                        permutations[strperm] += 1
-                    else:
-                        permutations[strperm] = 1
-
-optimal = {}
-for perm in permutations:
-    player = Player("test", True)
-    optimal[perm] = []
-    for option in alternatives:
-        if option != "chance":
-            optimal[perm].append([player.validate([int(num) for num in perm], option), option])
-    optimal[perm].sort(key=lambda x: x[0], reverse=True)
-    optimal[perm].append([sum(int(num) for num in perm), "chance"])
-
+# Save dice
 def save(dice, roll, saved):
     while len(saved) > 0:
         die = int(saved[0])
@@ -54,6 +31,7 @@ def save(dice, roll, saved):
                 break
             saved = saved[1:]
 
+# How the bots save their rolls. Depends on difficulty
 def bot_save(dice, roll, difficulty, roll_number):
     if difficulty == 0:
         saved = sample(roll, randint(0, 5))
@@ -74,7 +52,9 @@ def bot_save(dice, roll, difficulty, roll_number):
     elif difficulty == 3:
         pass
 
+# How the bots decide on decide what option to choose. Depends on difficulty
 def bot_validate_throw(player, roll, difficulty):
+    # Chooses randomly
     if difficulty == 0:
         option = sample(alternatives, 1)[0]
         if len(option.split()) > 0 and option.split()[0] == "erase":
@@ -94,6 +74,7 @@ def bot_validate_throw(player, roll, difficulty):
             else:
                 correct = player.throw(roll, option)
 
+    # Up to down
     elif difficulty == 1:
         for option in alternatives:
             correct = player.throw(roll, option)
@@ -104,6 +85,7 @@ def bot_validate_throw(player, roll, difficulty):
             if correct == 0:
                 return
 
+    # Trys to choose the best possible choice for the situation
     elif difficulty == 2:
         best = []
         for option in alternatives:
@@ -122,16 +104,5 @@ def bot_validate_throw(player, roll, difficulty):
             if correct == 0:
                 return
 
-    elif difficulty == 3:
-        roll.sort()
-        strroll = "".join(str(num) for num in roll)
-        for option in optimal[strroll]:
-            if player.validate(roll, option[1]) > 0:
-                player.throw(roll, option[1])
-                return
-        for option in alternatives:
-            correct = player.erase(roll, "erase " + option)
-            if correct == 0:
-                return
     else:
         assert False, "unreachable"
