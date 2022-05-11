@@ -127,6 +127,7 @@ def roll_die(dice):
 
 # This function evaluates your throw and adds to yatzy chart
 def validate_throw(player, roll):
+    print(f"Your roll is {roll}.")
     option = input("What do you want to do? ")
     # Check if you want to erase thing in yatzy chart
     if len(option.split()) > 0 and option.split()[0] == "erase":
@@ -182,7 +183,7 @@ def main():
                     for i in range(3):
                         roll = roll_die(dice)
                         if i != 2:
-                            save(dice, roll, 2)
+                            save(dice, roll)
                     # Evaluating throw and adding to yatzy Chart
                     validate_throw(player, roll)
 
