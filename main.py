@@ -49,6 +49,7 @@ def menu():
                 print("Must input 1 or 2.")
         except ValueError:
             print("Must input 1 or 2.")
+    return option
 
 # Creates five die objects
 def add_dice():
