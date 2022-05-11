@@ -40,7 +40,8 @@ def menu():
     print("First you roll, then you save the dice you like.")
     print("Then you roll and save the dice you like.")
     print("Lastly you roll and choose what combination you would like.")
-    print("If all possible combinations are already taken, you must erase one combination.\n")
+    print("If all possible combinations are already taken, you must erase one combination.")
+    print("If you want to erase on combination, write erase and then the combination.\n")
     option = ""
     while option not in [1, 2]:
         try:
@@ -179,6 +180,7 @@ def main():
             for player in players:
                 # a bots turn is a little bit different
                 if not player.bot:
+                    player.print_table()
                     # Rolling
                     for i in range(3):
                         roll = roll_die(dice)
