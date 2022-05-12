@@ -123,7 +123,6 @@ def roll_die(dice):
         else:
             roll.append(die.roll_dice())
         die.saved = False
-
     return roll
 
 # This function evaluates your throw and adds to yatzy chart
@@ -133,9 +132,9 @@ def validate_throw(player, roll):
     # Check if you want to erase thing in yatzy chart
     if len(option.split()) > 0 and option.split()[0] == "erase":
         option = option[6:]
-        correct = player.erase(roll, option)
+        correct = player.erase(roll, option.lower())
     else:
-        correct = player.throw(roll, option)
+        correct = player.throw(roll, option.lower())
     # Validates option
     while correct != 0:
         if correct == -1:
@@ -153,9 +152,9 @@ def validate_throw(player, roll):
         # Adds combination to yatzy chart
         if option.split()[0] == "erase":
             option = option[6:]
-            correct = player.erase(roll, option)
+            correct = player.erase(roll, option.lower())
         else:
-            correct = player.throw(roll, option)
+            correct = player.throw(roll, option.lower())
 
 # Game function
 def main():
