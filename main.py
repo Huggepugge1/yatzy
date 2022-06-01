@@ -1,5 +1,3 @@
-# Koden fungerar, bot suger
-
 from die import Die
 from player import Player
 from bot import *
@@ -7,11 +5,14 @@ from os import path
 import json
 
 def create_highscorelist():
+    # Creates highscorelist if not in current working directory
     if not path.exists('./highscore.json'):
         with open('./highscore.json', 'w') as f:
             f.write(json.dumps({}))
 
 def add_highscorelist(player, score):
+    # Opens highscorelist and converts it to a dictionary
+    # Adds player and score to the dictionary and writes it to highscore file
     with open('./highscore.json', 'r') as f:
         highscore = json.loads(f.read())
     with open('./highscore.json', 'w') as f:
@@ -19,6 +20,8 @@ def add_highscorelist(player, score):
         f.write(json.dumps(highscore))
 
 def sort_highsorelist():
+    # Opens highscorelist and converts it to a dictionary
+    # Sorts highscorelist by values in dictionary
     with open('./highscore.json', 'r') as f:
         highscore = json.loads(f.read())
     with open('./highscore.json', 'w') as f:
@@ -26,6 +29,8 @@ def sort_highsorelist():
         f.write(json.dumps(highscore))
 
 def search_highscorelist(player):
+    # Opens highscorelist and converts it to a dictionary
+    # Then it searches for the key "player", if not found, prints not found
     with open('./highscore.json', 'r') as f:
         highscorelist = json.load(f)
     try:
@@ -33,23 +38,50 @@ def search_highscorelist(player):
     except KeyError:
         print(f"{player} not in highscore list.")
 
-# Main menu
-def menu():
-    print("This is yatzy. You throw dice and hope to get combinations.")
+def print_instructions():
     print("Your turn consists of 6 phases.")
     print("First you roll, then you save the dice you like.")
     print("Then you roll and save the dice you like.")
     print("Lastly you roll and choose what combination you would like.")
     print("If all possible combinations are already taken, you must erase one combination.")
     print("If you want to erase on combination, write erase and then the combination.\n")
+    print("Rolling is done automaticly.")
+    print("If you want to save some dice, input the VALUES of the dice. "
+          "For example \"444\" if you want to save three fours.")
+    print("The combinations have the exact same name as in the table shown BEFORE your turn.\n")
+    print("Combinations: \n"
+          "    Ones: Any amount of ones (\"11111\")\n"
+          "    Twos: Any amount of twos (\"22222\")\n"
+          "    Threes: Any amount of threes (\"33333\")\n"
+          "    Fours: Any amount of fours (\"44444\")\n"
+          "    Fives: Any amount of fives (\"55555\")\n"
+          "    Sixes: Any amount of sixes (\"66666\")\n"
+          "    Bonus: If your total sum of above combinations if above 63 at the end of the game, get"
+          "50 extra points.\n\n"
+          "    Pair: A pair of any number (\"66\")\n"
+          "    Two pairs: Two pairs of any numbers that are not the same (\"6655\")\n"
+          "    Three of a kind: Three of any number (\"666\")\n"
+          "    Four of a kind: Four of any number (\"6666\")\n"
+          "    Small straight: All numbers from 1 to 5 (\"12345\")\n"
+          "    Big straight: All numbers from 2 to 6 (\"23456\")\n"
+          "    Full house: Three of a kind and pair (\"66655\"\n"
+          "    Chance: Any nubers (\"66666\")\n"
+          "    Yatzy: Five of a kind (\"66666\")")
+# Main menu
+def menu():
+    print("This is yatzy. You throw dice and hope to get combinations.")
     option = ""
-    while option not in [1, 2]:
+    # Error handling
+    while option not in [1, 2, 3, 4]:
         try:
-            option = int(input("Do you want to play the game (1) or interact with the highscorelist(2)? "))
-            if option not in [1, 2]:
-                print("Must input 1 or 2.")
+            option = int(input("Do you want to play the game (1), "
+                               "interact with the highscorelist (2), "
+                               "view the instructions (3)"
+                               "or exit (4)?"))
+            if option not in [1, 2, 3, 4]:
+                print("Must input 1, 2, 3 or 4.")
         except ValueError:
-            print("Must input 1 or 2.")
+            print("Must input 1, 2, 3 or 4.")
     return option
 
 # Creates five die objects
@@ -66,7 +98,7 @@ def add_players():
     # Min and max players to prevent bugs
     min_players = 1
     max_players = 10000
-    # Making sure num_of_players is int between min and max players
+    # Making sure num_of_players is int between min and max players, error handling
     while min_players > num_of_players or num_of_players > max_players:
         try:
             num_of_players = int(input("How many players will play the game? "))
@@ -77,15 +109,18 @@ def add_players():
         except ValueError:
             print("Number of players has to be an integer.")
 
+    # _ makes sure no variable is created for increased speed and less memory consumption
     for _ in range(num_of_players):
         players.append(Player(name=input("What is your name? "), bot=False))
 
     num_of_bots = -1
+    # Error handling
     while 0 > num_of_bots:
         try:
             num_of_bots = int(input("How many bots will play the game? "))
         except:
             print("Number of bots has to be an integer.")
+
     # Adds num_of_bots bots to player list. Name is Bot followed by a number
     for i in range(num_of_bots):
         players.append(Player(name=f"Bot_{i + 1}", bot=True))
@@ -109,9 +144,9 @@ def save(dice, roll):
     # Goes thru dice and saves them if there values are in "saved" list.
     while len(saved) > 0:
         die = saved[0]
-        for i in range(len(dice)):
-            if dice[i].number == die and not dice[i].saved:
-                dice[i].saved = True
+        for curr_die in dice:
+            if curr_die.number == die and not curr_die.saved:
+                curr_die.saved = True
                 break
         saved = saved[1:]
 
@@ -159,9 +194,10 @@ def validate_throw(player, roll):
 # Game function
 def main():
     create_highscorelist()
-    game = menu()
+    # mode is the mode your are in (game, highscore, instructions)
+    mode = menu()
     # If you want to play the game.
-    if game == 1:
+    if mode == 1:
         dice = add_dice()
         players = add_players()
         difficulty = -1
@@ -203,7 +239,7 @@ def main():
         sort_highsorelist()
 
     # Interact with highscore list
-    elif game == 2:
+    elif mode == 2:
         option = input("Do you want to show, search or do nothing with the highscorelist? ")
         if option in ["show", "search"]:
             if option == "show":
@@ -213,6 +249,12 @@ def main():
                         print(f"{name}: {score}")
             elif option == "search":
                 search_highscorelist(input("Who do you want to search for? "))
+
+    elif mode == 3:
+        print_instructions()
+
+    elif mode == 4:
+        exit
 
 if __name__ == "__main__":
     while True:

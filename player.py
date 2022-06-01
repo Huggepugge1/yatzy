@@ -1,4 +1,4 @@
-# All options available
+# All combinations available
 alternatives = [
     "ones",
     "twos",
@@ -85,6 +85,8 @@ class Player:
             return -2
         self.check_bonus()
         roll = divide(roll)
+
+        # Number of if statements to check if the chosen combination is possible from current throw
         if dice_throw == "ones":
             if self.ones == "-":
                 return -3
@@ -262,6 +264,7 @@ class Player:
         elif val == -4:
             return -4
 
+        # If statements to erase the correct combination in chart
         if dice_throw == "ones":
             self.ones = "-"
 
@@ -325,6 +328,7 @@ class Player:
         if val == -4:
             return -4
 
+        # If statements which adds points to right places of chart
         if dice_throw == "ones":
             self.ones = val
             self.mini_sum += val
@@ -393,38 +397,18 @@ class Player:
 
         return 0
 
-# Fast sorting algorithm
-def merge_sort(array):
-    if len(array) > 1:
-        s = len(array) // 2
-        l = array[s:]
-        r = array[:s]
+# easy but slow sorting algorithm
+def sort_array(array):
+    # Goes thru list len(list) number of times
+    for i in range(len(array)):
+        for j in range(len(array) - 1):
+            # If current value array[j] > [j+1] switch them around
+            if array[j] > array[j+1]:
+                # Sets array[j] to array[j+1] and array[j+1] to array[j]
+                array[j], array[j+1] = array[j+1], array[j]
+    return array
 
-        merge_sort(l)
-        merge_sort(r)
-
-        i = j = k = 0
-
-        while i - len(l) and j < len(r):
-            if l[i] < l[j]:
-                array[k] = l[i]
-                i += 1
-            else:
-                array[k] = r[j]
-                j += 1
-            k += 1
-
-        while i < len(l):
-            array[k] = l[i]
-            i += 1
-            k += 1
-
-        while j < len(r):
-            array[k] = r[j]
-            j += 1
-            k += 1
-
-# Make 1d array into 2d array
+# Make 1d array into 2d array by splitting it by numbers
 def divide(array):
     n = [[], [], [], [], [], []]
     for i in array:
