@@ -254,7 +254,7 @@ def main():
         print_instructions()
 
     elif mode == 4:
-        exit
+        exit()
 
 if __name__ == "__main__":
     while True:
