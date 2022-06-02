@@ -243,9 +243,14 @@ def main():
         option = input("Do you want to show, search or do nothing with the highscorelist? ")
         if option in ["show", "search"]:
             if option == "show":
+                # Convert highscore.json to python dict
+                # For each entry (name and score), print the position, name and score
                 with open('./highscore.json', 'r') as f:
                     f = json.loads(f.read())
                     for place, item in enumerate(f.items()):
+                        # Make everything aligned
+                        # Technically prone to errors due to padding can be smaller than 0
+                        # For this to happen the number of entries has to exceed 99999 which is highly unlikely
                         padding = 5 - len(str(place + 1))
                         name, score = item
                         print(f"{place + 1}{' ' * padding}{name}: {score}")
