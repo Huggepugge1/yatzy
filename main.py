@@ -245,8 +245,10 @@ def main():
             if option == "show":
                 with open('./highscore.json', 'r') as f:
                     f = json.loads(f.read())
-                    for name, score in enumerate(f.items()):
-                        print(f"{name}: {score}")
+                    for place, item in enumerate(f.items()):
+                        padding = 5 - len(str(place + 1))
+                        name, score = item
+                        print(f"{place + 1}{' ' * padding}{name}: {score}")
             elif option == "search":
                 search_highscorelist(input("Who do you want to search for? "))
 
